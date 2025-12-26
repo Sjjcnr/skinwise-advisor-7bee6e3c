@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recommendations: {
+        Row: {
+          ai_summary: string | null
+          assessment_id: string
+          created_at: string
+          id: string
+          products: Json
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          assessment_id: string
+          created_at?: string
+          id?: string
+          products?: Json
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          assessment_id?: string
+          created_at?: string
+          id?: string
+          products?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "skin_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skin_assessments: {
+        Row: {
+          age_range: string
+          allergies: string[] | null
+          budget_range: string | null
+          climate: string | null
+          created_at: string
+          gender: string | null
+          id: string
+          skin_concerns: string[]
+          skin_goals: string | null
+          skin_type: string
+          user_id: string
+        }
+        Insert: {
+          age_range: string
+          allergies?: string[] | null
+          budget_range?: string | null
+          climate?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          skin_concerns?: string[]
+          skin_goals?: string | null
+          skin_type: string
+          user_id: string
+        }
+        Update: {
+          age_range?: string
+          allergies?: string[] | null
+          budget_range?: string | null
+          climate?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          skin_concerns?: string[]
+          skin_goals?: string | null
+          skin_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
