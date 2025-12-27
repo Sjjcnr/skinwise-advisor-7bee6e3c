@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Quiz from "./pages/Quiz";
 import Results from "./pages/Results";
 import History from "./pages/History";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/results" element={<Results />} />
             <Route path="/history" element={<History />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
