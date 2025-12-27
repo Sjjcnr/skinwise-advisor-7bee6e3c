@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { 
   Sparkles, 
   ClipboardList, 
@@ -50,41 +51,44 @@ export default function Index() {
             <Leaf className="h-6 w-6 text-primary" />
             <span className="text-xl font-semibold text-foreground">SkinWise</span>
           </div>
-          {user ? (
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/history')}
-                className="flex items-center gap-2"
-              >
-                <History className="h-4 w-4" />
-                <span className="hidden sm:inline">History</span>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {user ? (
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/history')}
+                  className="flex items-center gap-2"
+                >
+                  <History className="h-4 w-4" />
+                  <span className="hidden sm:inline">History</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                  className="flex items-center gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Profile</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => navigate('/auth')}>
+                Sign In
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/profile')}
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Profile</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={() => navigate('/auth')}>
-              Sign In
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
