@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Leaf,
   Shield,
-  Zap
+  Zap,
+  User
 } from 'lucide-react';
 
 export default function Index() {
@@ -59,6 +60,15 @@ export default function Index() {
               >
                 <History className="h-4 w-4" />
                 <span className="hidden sm:inline">History</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/profile')}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
               </Button>
               <Button
                 variant="ghost"
