@@ -113,7 +113,8 @@ Recommend real, popular skincare products that are widely available.`;
     });
   } catch (error) {
     console.error('Error in get-recommendations:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -44,7 +44,7 @@ export default function Results() {
         .maybeSingle();
 
       if (existing) {
-        setProducts(existing.products as Product[]);
+        setProducts(existing.products as unknown as Product[]);
         setAiSummary(existing.ai_summary || '');
         setIsLoading(false);
         return;
