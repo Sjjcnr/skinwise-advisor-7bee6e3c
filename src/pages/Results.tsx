@@ -139,50 +139,69 @@ export default function Results() {
           <p className="text-muted-foreground max-w-xl mx-auto">{aiSummary}</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {products.map((product, index) => (
-            <Card key={index} className="shadow-soft border-border/50 overflow-hidden animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-primary font-medium">{product.brand}</p>
-                    <CardTitle className="text-lg">{product.name}</CardTitle>
+        {products.length === 0 ? (
+          <Card className="shadow-soft border-border/50 p-8 text-center">
+            <CardContent>
+              <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Products Found</h3>
+              <p className="text-muted-foreground mb-4">We couldn't generate product recommendations. Please try again.</p>
+              <Button onClick={fetchRecommendations}>
+                <RefreshCw className="w-4 h-4 mr-2" /> Retry
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {products.map((product, index) => (
+              <Card key={index} className="shadow-soft border-border/50 overflow-hidden animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm text-primary font-medium">{product.brand}</p>
+                      <CardTitle className="text-lg">{product.name}</CardTitle>
+                    </div>
+                    <Badge variant="secondary">{product.priceRange}</Badge>
                   </div>
-                  <Badge variant="secondary">{product.priceRange}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{product.whySuitable}</p>
-                
-                {product.keyIngredients?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {product.keyIngredients.map((ing, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
-                    ))}
-                  </div>
-                )}
-                
-                {product.productUrl && (
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <a href={product.productUrl} target="_blank" rel="noopener noreferrer">
-                      View Product <ExternalLink className="w-3 h-3 ml-2" />
-                    </a>
-                  </Button>
-                )}
-                
-                {recommendationId && user && (
-                  <div className="pt-2 border-t border-border/50">
-                    <ProductFeedback
-                      recommendationId={recommendationId}
-                      productName={product.name}
-                      userId={user.id}
-                    />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground">{product.whySuitable}</p>
+                  
+                  {product.usageInstructions && (
+                    <p className="text-xs text-muted-foreground italic">
+                      Usage: {product.usageInstructions}
+                    </p>
+                  )}
+                  
+                  {product.keyIngredients?.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {product.keyIngredients.map((ing, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {product.productUrl && (
+                    <Button className="w-full" asChild>
+                      <a href={product.productUrl} target="_blank" rel="noopener noreferrer">
+                        Shop Now <ExternalLink className="w-3 h-3 ml-2" />
+                      </a>
+                    </Button>
+                  )}
+                  
+                  {recommendationId && user && (
+                    <div className="pt-2 border-t border-border/50">
+                      <ProductFeedback
+                        recommendationId={recommendationId}
+                        productName={product.name}
+                        userId={user.id}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <Card className="bg-muted/50 border-dashed">
           <CardContent className="p-4 text-center text-sm text-muted-foreground">
