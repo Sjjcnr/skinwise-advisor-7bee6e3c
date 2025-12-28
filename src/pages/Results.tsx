@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Leaf, ExternalLink, AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ShareButton } from '@/components/ShareButton';
 
 export default function Results() {
   const { assessmentId } = useParams();
@@ -173,10 +174,14 @@ export default function Results() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <Button variant="outline" asChild>
             <Link to="/quiz"><ArrowLeft className="w-4 h-4 mr-2" /> Take New Quiz</Link>
           </Button>
+          <ShareButton 
+            title="My Skincare Routine" 
+            text="Check out my personalized skincare routine from SkinWise!" 
+          />
           <Button asChild>
             <Link to="/history">View History</Link>
           </Button>
