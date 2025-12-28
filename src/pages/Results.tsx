@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Leaf, ExternalLink, AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/ShareButton';
+import { ProductFeedback } from '@/components/ProductFeedback';
 
 export default function Results() {
   const { assessmentId } = useParams();
@@ -20,6 +21,7 @@ export default function Results() {
   const [aiSummary, setAiSummary] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [recommendationId, setRecommendationId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -45,6 +47,7 @@ export default function Results() {
         .maybeSingle();
 
       if (existing) {
+        setRecommendationId(existing.id);
         setProducts(existing.products as unknown as Product[]);
         setAiSummary(existing.ai_summary || '');
         setIsLoading(false);
@@ -71,12 +74,16 @@ export default function Results() {
       setAiSummary(data.summary || '');
 
       // Save recommendations
-      await supabase.from('recommendations').insert({
+      const { data: savedRec } = await supabase.from('recommendations').insert({
         assessment_id: assessmentId,
         user_id: user!.id,
         products: data.products,
         ai_summary: data.summary,
-      });
+      }).select('id').single();
+
+      if (savedRec) {
+        setRecommendationId(savedRec.id);
+      }
 
     } catch (err) {
       console.error('Error fetching recommendations:', err);
@@ -161,6 +168,16 @@ export default function Results() {
                       View Product <ExternalLink className="w-3 h-3 ml-2" />
                     </a>
                   </Button>
+                )}
+                
+                {recommendationId && user && (
+                  <div className="pt-2 border-t border-border/50">
+                    <ProductFeedback
+                      recommendationId={recommendationId}
+                      productName={product.name}
+                      userId={user.id}
+                    />
+                  </div>
                 )}
               </CardContent>
             </Card>
