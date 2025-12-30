@@ -11,6 +11,7 @@ import Quiz from "./pages/Quiz";
 import Results from "./pages/Results";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/results/:assessmentId" element={<Results />} />
               <Route path="/history" element={<History />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

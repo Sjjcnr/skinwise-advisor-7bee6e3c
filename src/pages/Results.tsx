@@ -6,10 +6,11 @@ import { Product } from '@/types/skincare';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Leaf, ExternalLink, AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Loader2, Leaf, ExternalLink, AlertTriangle, ArrowLeft, RefreshCw, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/ShareButton';
 import { ProductFeedback } from '@/components/ProductFeedback';
+import { FavoriteButton } from '@/components/FavoriteButton';
 
 export default function Results() {
   const { assessmentId } = useParams();
@@ -160,7 +161,10 @@ export default function Results() {
                       <p className="text-sm text-primary font-medium">{product.brand}</p>
                       <CardTitle className="text-lg">{product.name}</CardTitle>
                     </div>
-                    <Badge variant="secondary">{product.priceRange}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{product.priceRange}</Badge>
+                      {user && <FavoriteButton product={product} userId={user.id} />}
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -218,6 +222,9 @@ export default function Results() {
             title="My Skincare Routine" 
             text="Check out my personalized skincare routine from SkinWise!" 
           />
+          <Button variant="outline" asChild>
+            <Link to="/favorites"><Heart className="w-4 h-4 mr-2" /> View Favorites</Link>
+          </Button>
           <Button asChild>
             <Link to="/history">View History</Link>
           </Button>
