@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          product_brand: string | null
+          product_data: Json
+          product_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_brand?: string | null
+          product_data?: Json
+          product_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_brand?: string | null
+          product_data?: Json
+          product_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_feedback: {
         Row: {
           created_at: string
