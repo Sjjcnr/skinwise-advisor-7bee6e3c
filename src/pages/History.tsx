@@ -255,7 +255,7 @@ export default function History() {
                         <Button 
                           variant="outline" 
                           className="w-full"
-                          onClick={() => navigate(`/results?assessment=${assessment.id}`)}
+                          onClick={() => navigate(`/results/${assessment.id}`)}
                         >
                           View Full Results
                         </Button>
@@ -267,7 +267,7 @@ export default function History() {
                         </p>
                         <Button 
                           variant="outline"
-                          onClick={() => navigate(`/results?assessment=${assessment.id}`)}
+                          onClick={() => navigate(`/results/${assessment.id}`)}
                         >
                           Generate Recommendations
                         </Button>
