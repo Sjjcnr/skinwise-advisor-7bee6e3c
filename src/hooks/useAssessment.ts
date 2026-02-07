@@ -15,7 +15,7 @@ const INITIAL_ASSESSMENT: SkinAssessment = {
 export function useAssessment() {
   const [assessment, setAssessment] = useState<SkinAssessment>(INITIAL_ASSESSMENT);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const updateAssessment = useCallback((field: keyof SkinAssessment, value: string | string[]) => {
     setAssessment(prev => ({ ...prev, [field]: value }));
@@ -66,6 +66,8 @@ export function useAssessment() {
         return !!assessment.climate;
       case 5:
         return !!assessment.budgetRange;
+      case 6:
+        return true; // Face photo is optional
       default:
         return false;
     }
