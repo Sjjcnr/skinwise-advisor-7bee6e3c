@@ -12,6 +12,7 @@ import Results from "./pages/Results";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
+import FaceCapturePage from "./pages/FaceCapturePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/history" element={<History />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/face-capture" element={<FaceCapturePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
