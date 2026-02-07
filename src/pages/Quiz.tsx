@@ -8,6 +8,7 @@ import { StepSkinType } from '@/components/quiz/StepSkinType';
 import { StepConcerns } from '@/components/quiz/StepConcerns';
 import { StepLifestyle } from '@/components/quiz/StepLifestyle';
 import { StepPreferences } from '@/components/quiz/StepPreferences';
+import { StepFacePhoto } from '@/components/quiz/StepFacePhoto';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +20,7 @@ export default function Quiz() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [facePhoto, setFacePhoto] = useState<string | null>(null);
   
   const {
     assessment,
@@ -85,6 +87,8 @@ export default function Quiz() {
         return <StepLifestyle assessment={assessment} onUpdate={updateAssessment} onToggle={toggleArrayField} />;
       case 5:
         return <StepPreferences assessment={assessment} onUpdate={updateAssessment} />;
+      case 6:
+        return <StepFacePhoto onCapture={(img) => setFacePhoto(img)} captured={!!facePhoto} />;
       default:
         return null;
     }
