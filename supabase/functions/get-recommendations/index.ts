@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { assessment } = await req.json();
+    const { assessment, facePhoto } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const FIRECRAWL_API_KEY = Deno.env.get('FIRECRAWL_API_KEY');
 
@@ -36,7 +36,11 @@ serve(async (req) => {
     };
     const budgetDescription = budgetMap[assessment.budget_range] || 'products across various price points';
 
-    const prompt = `You are a skincare expert. Analyze this user's skin profile and recommend 5 specific, REAL skincare products they can purchase.
+    const facePhotoInstruction = facePhoto
+      ? `\n\nIMPORTANT: A face photo has been provided for visual skin analysis. Carefully examine the photo to identify visible skin conditions such as acne, dryness, redness, dark spots, wrinkles, oiliness, or texture issues. Factor your visual observations into the product recommendations alongside the stated profile data. Mention any visible observations in the summary.`
+      : '';
+
+    const prompt = `You are a skincare expert. Analyze this user's skin profile and recommend 5 specific, REAL skincare products they can purchase.${facePhotoInstruction}
 
 USER PROFILE:
 - Age Range: ${assessment.age_range}
@@ -53,10 +57,11 @@ REQUIREMENTS:
 2. Products must match the budget range specified
 3. Include a cleanser, moisturizer, and treatments for their specific concerns
 4. Each product must be actually purchasable online
+${facePhoto ? '5. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
 
 Return ONLY valid JSON in this exact format:
 {
-  "summary": "A 2-3 sentence personalized summary of why these products suit this user",
+  "summary": "A 2-3 sentence personalized summary of why these products suit this user${facePhoto ? ', including observations from their face photo' : ''}",
   "products": [
     {
       "name": "Exact Product Name",
@@ -71,7 +76,18 @@ Return ONLY valid JSON in this exact format:
   ]
 }`;
 
-    console.log('Calling AI with prompt...');
+    console.log('Calling AI with prompt...', facePhoto ? '(with face photo)' : '(text only)');
+
+    // Build user message content — multimodal if face photo provided
+    const userContent: any = facePhoto
+      ? [
+          { type: 'text', text: prompt },
+          {
+            type: 'image_url',
+            image_url: { url: facePhoto }, // base64 data URI
+          },
+        ]
+      : prompt;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -82,8 +98,8 @@ Return ONLY valid JSON in this exact format:
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'You are an expert skincare consultant. Always respond with valid JSON only, no markdown formatting.' },
-          { role: 'user', content: prompt }
+          { role: 'system', content: 'You are an expert skincare consultant with visual skin analysis capabilities. Always respond with valid JSON only, no markdown formatting.' },
+          { role: 'user', content: userContent }
         ],
       }),
     });

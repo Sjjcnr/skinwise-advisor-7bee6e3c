@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/skincare';
@@ -16,7 +16,9 @@ export default function Results() {
   const { assessmentId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const facePhoto = (location.state as any)?.facePhoto as string | null;
   
   const [products, setProducts] = useState<Product[]>([]);
   const [aiSummary, setAiSummary] = useState('');
@@ -64,9 +66,9 @@ export default function Results() {
 
       if (assessmentError) throw assessmentError;
 
-      // Call edge function for AI recommendations
+      // Call edge function for AI recommendations, include face photo if available
       const { data, error: fnError } = await supabase.functions.invoke('get-recommendations', {
-        body: { assessment },
+        body: { assessment, facePhoto },
       });
 
       if (fnError) throw fnError;

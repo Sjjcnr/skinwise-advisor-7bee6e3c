@@ -61,8 +61,10 @@ export default function Quiz() {
 
       if (assessmentError) throw assessmentError;
 
-      // Navigate to results with assessment ID
-      navigate(`/results/${assessmentData.id}`);
+      // Navigate to results with assessment ID and optional face photo
+      navigate(`/results/${assessmentData.id}`, {
+        state: { facePhoto },
+      });
     } catch (error) {
       console.error('Error saving assessment:', error);
       toast({
