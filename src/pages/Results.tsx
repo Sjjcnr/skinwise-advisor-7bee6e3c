@@ -137,8 +137,14 @@ export default function Results() {
   return (
     <div className="min-h-screen gradient-skinwise-subtle py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <h1 className="text-3xl font-display font-bold">Your Personalized Routine</h1>
+          {facePhoto && (
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-sm font-medium">
+              <Leaf className="w-4 h-4" />
+              Enhanced with face photo analysis
+            </div>
+          )}
           <p className="text-muted-foreground max-w-xl mx-auto">{aiSummary}</p>
         </div>
 
