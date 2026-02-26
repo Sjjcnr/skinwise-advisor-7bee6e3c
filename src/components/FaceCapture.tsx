@@ -38,21 +38,25 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
   const startCamera = useCallback(async () => {
     try {
       setError(null);
+      setResult(null);
+      setCapturedImage(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
       setCameraActive(true);
-      setResult(null);
-      setCapturedImage(null);
     } catch {
       setError('Could not access camera. Please allow camera permissions.');
     }
   }, []);
+
+  // Attach stream to video element after it mounts
+  useEffect(() => {
+    if (cameraActive && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [cameraActive]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
