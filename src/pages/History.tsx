@@ -107,60 +107,98 @@ export default function History() {
     }
   };
 
-  const deleteAssessment = async (assessmentId: string) => {
-    setDeletingId(assessmentId);
+  const commitDelete = useCallback(async (items: AssessmentWithRecommendation[]) => {
     try {
-      // Delete related recommendations first (cascade not set up)
-      await supabase
-        .from('recommendations')
-        .delete()
-        .eq('assessment_id', assessmentId);
-
-      const { error } = await supabase
-        .from('skin_assessments')
-        .delete()
-        .eq('id', assessmentId);
-
-      if (error) throw error;
-
-      setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
-      if (expandedId === assessmentId) setExpandedId(null);
-
-      toast({ title: 'Assessment deleted', description: 'The assessment and its recommendations have been removed.' });
+      for (const item of items) {
+        await supabase.from('recommendations').delete().eq('assessment_id', item.id);
+        await supabase.from('skin_assessments').delete().eq('id', item.id);
+      }
     } catch (err) {
-      console.error('Delete error:', err);
-      toast({ title: 'Error', description: 'Could not delete the assessment. Please try again.', variant: 'destructive' });
-    } finally {
-      setDeletingId(null);
+      console.error('Delete commit error:', err);
     }
+  }, []);
+
+  const undoPendingDelete = useCallback(() => {
+    if (!pendingDelete) return;
+    if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+
+    // Restore removed items back into the list
+    setAssessments((prev) => {
+      const existingIds = new Set(prev.map((a) => a.id));
+      const restored = pendingDelete.items.filter((a) => !existingIds.has(a.id));
+      return [...restored, ...prev].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+
+    setPendingDelete(null);
+    toast({ title: 'Restored', description: 'Your assessments have been restored.' });
+  }, [pendingDelete, toast]);
+
+  // Cleanup timer on unmount
+  useEffect(() => () => {
+    if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
+  }, []);
+
+  const deleteAssessment = (assessmentId: string) => {
+    // Cancel any previous pending delete first
+    if (pendingDeleteTimer.current) {
+      clearTimeout(pendingDeleteTimer.current);
+      if (pendingDelete) void commitDelete(pendingDelete.items);
+    }
+
+    const deleted = assessments.find((a) => a.id === assessmentId);
+    if (!deleted) return;
+
+    setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
+    if (expandedId === assessmentId) setExpandedId(null);
+
+    const pending = { items: [deleted], type: 'single' as const };
+    setPendingDelete(pending);
+
+    toast({
+      title: 'Assessment deleted',
+      description: 'This will be permanently removed in 8 seconds.',
+      action: (
+        <Button variant="outline" size="sm" onClick={undoPendingDelete}>
+          Undo
+        </Button>
+      ),
+    });
+
+    pendingDeleteTimer.current = setTimeout(() => {
+      void commitDelete(pending.items);
+      setPendingDelete(null);
+    }, 8000);
   };
 
-  const deleteAllAssessments = async () => {
-    setDeletingId('all');
-    try {
-      // Delete all recommendations for this user
-      await supabase
-        .from('recommendations')
-        .delete()
-        .eq('user_id', user!.id);
-
-      const { error } = await supabase
-        .from('skin_assessments')
-        .delete()
-        .eq('user_id', user!.id);
-
-      if (error) throw error;
-
-      setAssessments([]);
-      setExpandedId(null);
-
-      toast({ title: 'All assessments deleted', description: 'Your entire assessment history has been cleared.' });
-    } catch (err) {
-      console.error('Bulk delete error:', err);
-      toast({ title: 'Error', description: 'Could not delete assessments. Please try again.', variant: 'destructive' });
-    } finally {
-      setDeletingId(null);
+  const deleteAllAssessments = () => {
+    if (pendingDeleteTimer.current) {
+      clearTimeout(pendingDeleteTimer.current);
+      if (pendingDelete) void commitDelete(pendingDelete.items);
     }
+
+    const allItems = [...assessments];
+    setAssessments([]);
+    setExpandedId(null);
+
+    const pending = { items: allItems, type: 'all' as const };
+    setPendingDelete(pending);
+
+    toast({
+      title: 'All assessments deleted',
+      description: `${allItems.length} assessment${allItems.length !== 1 ? 's' : ''} will be permanently removed in 8 seconds.`,
+      action: (
+        <Button variant="outline" size="sm" onClick={undoPendingDelete}>
+          Undo
+        </Button>
+      ),
+    });
+
+    pendingDeleteTimer.current = setTimeout(() => {
+      void commitDelete(pending.items);
+      setPendingDelete(null);
+    }, 8000);
   };
 
   const getSkinTypeIcon = (skinType: string) => {
