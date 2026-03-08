@@ -133,6 +133,34 @@ export default function History() {
     }
   };
 
+  const deleteAllAssessments = async () => {
+    setDeletingId('all');
+    try {
+      // Delete all recommendations for this user
+      await supabase
+        .from('recommendations')
+        .delete()
+        .eq('user_id', user!.id);
+
+      const { error } = await supabase
+        .from('skin_assessments')
+        .delete()
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+
+      setAssessments([]);
+      setExpandedId(null);
+
+      toast({ title: 'All assessments deleted', description: 'Your entire assessment history has been cleared.' });
+    } catch (err) {
+      console.error('Bulk delete error:', err);
+      toast({ title: 'Error', description: 'Could not delete assessments. Please try again.', variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const getSkinTypeIcon = (skinType: string) => {
     switch (skinType) {
       case 'oily': return <Droplets className="h-4 w-4" />;
