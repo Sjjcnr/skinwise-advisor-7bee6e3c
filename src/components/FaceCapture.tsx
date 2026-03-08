@@ -388,7 +388,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
           <div className="flex flex-wrap gap-2">
             {!cameraActive && !capturedImage && (
               <>
-                <Button onClick={startCamera} className="flex-1 gap-2">
+                <Button onClick={() => void startCamera()} className="flex-1 gap-2">
                   <Camera className="w-4 h-4" />
                   Capture
                 </Button>
