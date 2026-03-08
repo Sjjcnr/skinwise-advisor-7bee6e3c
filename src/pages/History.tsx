@@ -161,9 +161,9 @@ export default function History() {
       title: 'Assessment deleted',
       description: 'This will be permanently removed in 8 seconds.',
       action: (
-        <Button variant="outline" size="sm" onClick={undoPendingDelete}>
+        <ToastAction altText="Undo delete" onClick={undoPendingDelete}>
           Undo
-        </Button>
+        </ToastAction>
       ),
     });
 
