@@ -47,6 +47,18 @@ interface AssessmentWithRecommendation {
   };
 }
 
+const UNDO_DELAY = 8;
+
+function Countdown({ seconds }: { seconds: number }) {
+  const [remaining, setRemaining] = useState(seconds);
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const id = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000);
+    return () => clearInterval(id);
+  }, [remaining]);
+  return <>{remaining}s</>;
+}
+
 export default function History() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -164,20 +176,20 @@ export default function History() {
 
     toast({
       title: 'Assessment deleted',
-      description: 'This will be permanently removed in 8 seconds.',
+      description: <span>Permanently removed in <Countdown seconds={UNDO_DELAY} /></span>,
       action: (
         <ToastAction altText="Undo delete" onClick={undoPendingDelete}>
           Undo
         </ToastAction>
       ),
-      duration: 8000,
+      duration: UNDO_DELAY * 1000,
     });
 
     pendingDeleteTimer.current = setTimeout(() => {
       void commitDelete(pending.items);
       pendingDeleteRef.current = null;
       setPendingDelete(null);
-    }, 8000);
+    }, UNDO_DELAY * 1000);
   };
 
   const deleteAllAssessments = () => {
@@ -196,20 +208,20 @@ export default function History() {
 
     toast({
       title: 'All assessments deleted',
-      description: `${allItems.length} assessment${allItems.length !== 1 ? 's' : ''} will be permanently removed in 8 seconds.`,
+      description: <span>{allItems.length} assessment{allItems.length !== 1 ? 's' : ''} — permanently removed in <Countdown seconds={UNDO_DELAY} /></span>,
       action: (
         <ToastAction altText="Undo delete all" onClick={undoPendingDelete}>
           Undo
         </ToastAction>
       ),
-      duration: 8000,
+      duration: UNDO_DELAY * 1000,
     });
 
     pendingDeleteTimer.current = setTimeout(() => {
       void commitDelete(pending.items);
       pendingDeleteRef.current = null;
       setPendingDelete(null);
-    }, 8000);
+    }, UNDO_DELAY * 1000);
   };
 
   const getSkinTypeIcon = (skinType: string) => {
