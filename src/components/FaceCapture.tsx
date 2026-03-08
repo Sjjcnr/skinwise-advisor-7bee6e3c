@@ -20,6 +20,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraInitializing, setCameraInitializing] = useState(false);
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<FaceCheckResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     setError(null);
     setResult(null);
     setCapturedImage(null);
+    setCameraInitializing(true);
 
     // Mount video immediately so stream can be attached as soon as it's ready
     setCameraActive(true);
@@ -59,10 +61,12 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       streamRef.current = stream;
       setCameraStream(stream);
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? `${err.name}: ${err.message}` : 'Unknown camera error';
       setCameraActive(false);
       setCameraStream(null);
-      setError('Could not access camera. Please allow camera permissions.');
+      setCameraInitializing(false);
+      setError(`Could not access camera. ${message}`);
     }
   }, []);
 
@@ -71,7 +75,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     const video = videoRef.current;
     if (!cameraActive || !cameraStream || !video) return;
 
-    video.srcObject = cameraStream;
+    let cancelled = false;
+
+    const markReady = () => {
+      if (cancelled) return;
+      setCameraInitializing(false);
+      setError(null);
+    };
 
     const startPlayback = async () => {
       try {
@@ -81,6 +91,9 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       }
     };
 
+    video.srcObject = cameraStream;
+    video.onplaying = markReady;
+
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
       void startPlayback();
     } else {
@@ -89,8 +102,29 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       };
     }
 
+    const watchdog = window.setTimeout(async () => {
+      if (cancelled || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+
+      try {
+        // Retry attaching stream once in case browser dropped first binding
+        video.srcObject = null;
+        video.srcObject = cameraStream;
+        await video.play();
+      } catch {
+        // noop
+      }
+
+      if (!cancelled && video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+        setCameraInitializing(false);
+        setError('Camera opened but no live feed was received. Close other camera apps, then try again.');
+      }
+    }, 3000);
+
     return () => {
+      cancelled = true;
+      window.clearTimeout(watchdog);
       video.onloadedmetadata = null;
+      video.onplaying = null;
     };
   }, [cameraActive, cameraStream]);
 
@@ -98,6 +132,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     setCameraStream(null);
+    setCameraInitializing(false);
     if (videoRef.current) videoRef.current.srcObject = null;
     setCameraActive(false);
   }, []);
@@ -241,6 +276,15 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
                   Hold steady — avoid motion
                 </Badge>
               </div>
+
+              {cameraInitializing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-foreground/20 backdrop-blur-[1px]">
+                  <Badge variant="secondary" className="gap-1.5 bg-background/85 text-foreground">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Starting camera…
+                  </Badge>
+                </div>
+              )}
             </>
           )}
 
@@ -328,11 +372,16 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
             {cameraActive && !capturedImage && (
               <>
-                <Button onClick={capture} disabled={checking} className="flex-1 gap-2">
+                <Button onClick={capture} disabled={checking || cameraInitializing} className="flex-1 gap-2">
                   {checking ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Checking…
+                    </>
+                  ) : cameraInitializing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Starting…
                     </>
                   ) : (
                     <>
