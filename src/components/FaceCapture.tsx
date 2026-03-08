@@ -41,6 +41,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     setError(null);
     setResult(null);
     setCapturedImage(null);
+    setCameraInitializing(true);
 
     // Mount video immediately so stream can be attached as soon as it's ready
     setCameraActive(true);
@@ -60,10 +61,12 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       streamRef.current = stream;
       setCameraStream(stream);
-    } catch {
+    } catch (err) {
+      const message = err instanceof Error ? `${err.name}: ${err.message}` : 'Unknown camera error';
       setCameraActive(false);
       setCameraStream(null);
-      setError('Could not access camera. Please allow camera permissions.');
+      setCameraInitializing(false);
+      setError(`Could not access camera. ${message}`);
     }
   }, []);
 
