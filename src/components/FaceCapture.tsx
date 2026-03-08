@@ -37,31 +37,68 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
   }), []);
 
   const startCamera = useCallback(async () => {
+    setError(null);
+    setResult(null);
+    setCapturedImage(null);
+
+    // Mount video immediately so stream can be attached as soon as it's ready
+    setCameraActive(true);
+
     try {
-      setError(null);
-      setResult(null);
-      setCapturedImage(null);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
-      });
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+        });
+      } catch {
+        // Fallback for devices/browsers that can't satisfy preferred constraints
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
+
       streamRef.current = stream;
-      setCameraActive(true);
+      setCameraStream(stream);
     } catch {
+      setCameraActive(false);
+      setCameraStream(null);
       setError('Could not access camera. Please allow camera permissions.');
     }
   }, []);
 
-  // Attach stream to video element after it mounts
+  // Attach stream to video element when both are ready
   useEffect(() => {
-    if (cameraActive && streamRef.current && videoRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!cameraActive || !cameraStream || !video) return;
+
+    video.srcObject = cameraStream;
+
+    const startPlayback = async () => {
+      try {
+        await video.play();
+      } catch {
+        // Ignore autoplay interruptions; user can retry capture
+      }
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      void startPlayback();
+    } else {
+      video.onloadedmetadata = () => {
+        void startPlayback();
+      };
     }
-  }, [cameraActive]);
+
+    return () => {
+      video.onloadedmetadata = null;
+    };
+  }, [cameraActive, cameraStream]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    setCameraStream(null);
+    if (videoRef.current) videoRef.current.srcObject = null;
     setCameraActive(false);
   }, []);
 
