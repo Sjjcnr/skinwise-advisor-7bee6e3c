@@ -215,9 +215,38 @@ export default function History() {
               </p>
             </div>
           </div>
-          <Button onClick={() => navigate('/quiz')}>
-            New Assessment
-          </Button>
+          <div className="flex items-center gap-2">
+            {assessments.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="gap-2 text-destructive hover:text-destructive" disabled={deletingId === 'all'}>
+                    <Trash2 className="h-4 w-4" />
+                    Clear All
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete all assessments?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete all {assessments.length} assessment{assessments.length !== 1 ? 's' : ''} and their recommendations. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteAllAssessments}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete All
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button onClick={() => navigate('/quiz')}>
+              New Assessment
+            </Button>
+          </div>
         </div>
       </header>
 
