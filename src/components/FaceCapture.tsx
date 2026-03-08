@@ -163,6 +163,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     setCameraActive(false);
   }, []);
 
+  const switchCamera = useCallback(() => {
+    if (videoDevices.length < 2) return;
+    const nextIndex = (activeDeviceIndex + 1) % videoDevices.length;
+    setActiveDeviceIndex(nextIndex);
+    void startCamera(videoDevices[nextIndex].deviceId);
+  }, [activeDeviceIndex, startCamera, videoDevices]);
+
   useEffect(() => () => stopCamera(), [stopCamera]);
 
   const capture = useCallback(async () => {
