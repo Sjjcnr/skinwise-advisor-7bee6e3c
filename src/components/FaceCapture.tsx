@@ -75,7 +75,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     const video = videoRef.current;
     if (!cameraActive || !cameraStream || !video) return;
 
-    video.srcObject = cameraStream;
+    let cancelled = false;
+
+    const markReady = () => {
+      if (cancelled) return;
+      setCameraInitializing(false);
+      setError(null);
+    };
 
     const startPlayback = async () => {
       try {
@@ -85,6 +91,9 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       }
     };
 
+    video.srcObject = cameraStream;
+    video.onplaying = markReady;
+
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
       void startPlayback();
     } else {
@@ -93,8 +102,29 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       };
     }
 
+    const watchdog = window.setTimeout(async () => {
+      if (cancelled || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+
+      try {
+        // Retry attaching stream once in case browser dropped first binding
+        video.srcObject = null;
+        video.srcObject = cameraStream;
+        await video.play();
+      } catch {
+        // noop
+      }
+
+      if (!cancelled && video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+        setCameraInitializing(false);
+        setError('Camera opened but no live feed was received. Close other camera apps, then try again.');
+      }
+    }, 3000);
+
     return () => {
+      cancelled = true;
+      window.clearTimeout(watchdog);
       video.onloadedmetadata = null;
+      video.onplaying = null;
     };
   }, [cameraActive, cameraStream]);
 
