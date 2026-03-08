@@ -6,6 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -13,7 +25,8 @@ import {
   Sparkles,
   Droplets,
   Sun,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Product } from '@/types/skincare';
