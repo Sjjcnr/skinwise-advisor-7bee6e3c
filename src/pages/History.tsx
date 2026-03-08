@@ -221,7 +221,7 @@ export default function History() {
       void commitDelete(pending.items);
       pendingDeleteRef.current = null;
       setPendingDelete(null);
-    }, 8000);
+    }, UNDO_DELAY * 1000);
   };
 
   const getSkinTypeIcon = (skinType: string) => {
