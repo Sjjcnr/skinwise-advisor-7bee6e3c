@@ -6,6 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -13,7 +25,8 @@ import {
   Sparkles,
   Droplets,
   Sun,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Product } from '@/types/skincare';
@@ -38,7 +51,9 @@ export default function History() {
   const { user, loading: authLoading } = useAuth();
   const [assessments, setAssessments] = useState<AssessmentWithRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -87,6 +102,34 @@ export default function History() {
       console.error('Error fetching history:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const deleteAssessment = async (assessmentId: string) => {
+    setDeletingId(assessmentId);
+    try {
+      // Delete related recommendations first (cascade not set up)
+      await supabase
+        .from('recommendations')
+        .delete()
+        .eq('assessment_id', assessmentId);
+
+      const { error } = await supabase
+        .from('skin_assessments')
+        .delete()
+        .eq('id', assessmentId);
+
+      if (error) throw error;
+
+      setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
+      if (expandedId === assessmentId) setExpandedId(null);
+
+      toast({ title: 'Assessment deleted', description: 'The assessment and its recommendations have been removed.' });
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast({ title: 'Error', description: 'Could not delete the assessment. Please try again.', variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -210,6 +253,36 @@ export default function History() {
                           {formatBudget(assessment.budget_range)}
                         </Badge>
                       )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={(e) => e.stopPropagation()}
+                            disabled={deletingId === assessment.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete assessment?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete this assessment and its recommendations. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteAssessment(assessment.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                       <ChevronRight 
                         className={`h-5 w-5 text-muted-foreground transition-transform ${
                           expandedId === assessment.id ? 'rotate-90' : ''
