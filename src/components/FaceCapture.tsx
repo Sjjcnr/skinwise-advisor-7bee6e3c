@@ -423,6 +423,12 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
                     </>
                   )}
                 </Button>
+                {videoDevices.length > 1 && (
+                  <Button variant="outline" onClick={switchCamera} disabled={cameraInitializing} className="gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Switch camera
+                  </Button>
+                )}
                 <Button variant="outline" onClick={stopCamera} className="gap-2">
                   <X className="w-4 h-4" />
                   Cancel
