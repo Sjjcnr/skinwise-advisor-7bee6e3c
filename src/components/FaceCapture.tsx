@@ -21,6 +21,8 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraInitializing, setCameraInitializing] = useState(false);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeDeviceIndex, setActiveDeviceIndex] = useState(0);
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<FaceCheckResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
