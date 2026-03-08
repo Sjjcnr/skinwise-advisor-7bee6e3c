@@ -132,6 +132,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     setCameraStream(null);
+    setCameraInitializing(false);
     if (videoRef.current) videoRef.current.srcObject = null;
     setCameraActive(false);
   }, []);
