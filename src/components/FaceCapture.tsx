@@ -276,6 +276,15 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
                   Hold steady — avoid motion
                 </Badge>
               </div>
+
+              {cameraInitializing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-foreground/20 backdrop-blur-[1px]">
+                  <Badge variant="secondary" className="gap-1.5 bg-background/85 text-foreground">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Starting camera…
+                  </Badge>
+                </div>
+              )}
             </>
           )}
 
