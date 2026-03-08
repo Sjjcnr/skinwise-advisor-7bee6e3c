@@ -253,6 +253,36 @@ export default function History() {
                           {formatBudget(assessment.budget_range)}
                         </Badge>
                       )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={(e) => e.stopPropagation()}
+                            disabled={deletingId === assessment.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete assessment?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently delete this assessment and its recommendations. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteAssessment(assessment.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                       <ChevronRight 
                         className={`h-5 w-5 text-muted-foreground transition-transform ${
                           expandedId === assessment.id ? 'rotate-90' : ''
