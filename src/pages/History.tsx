@@ -51,7 +51,9 @@ export default function History() {
   const { user, loading: authLoading } = useAuth();
   const [assessments, setAssessments] = useState<AssessmentWithRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
