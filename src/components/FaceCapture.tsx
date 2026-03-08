@@ -142,7 +142,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       if (!cancelled && video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
         setCameraInitializing(false);
-        setError('Camera opened but no live feed was received. Close other camera apps, then try again.');
+        setError('Camera opened but no live feed was received. Try switching camera or close other camera apps, then retry.');
       }
     }, 3000);
 
