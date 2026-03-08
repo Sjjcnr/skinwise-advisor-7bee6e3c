@@ -105,6 +105,34 @@ export default function History() {
     }
   };
 
+  const deleteAssessment = async (assessmentId: string) => {
+    setDeletingId(assessmentId);
+    try {
+      // Delete related recommendations first (cascade not set up)
+      await supabase
+        .from('recommendations')
+        .delete()
+        .eq('assessment_id', assessmentId);
+
+      const { error } = await supabase
+        .from('skin_assessments')
+        .delete()
+        .eq('id', assessmentId);
+
+      if (error) throw error;
+
+      setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
+      if (expandedId === assessmentId) setExpandedId(null);
+
+      toast({ title: 'Assessment deleted', description: 'The assessment and its recommendations have been removed.' });
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast({ title: 'Error', description: 'Could not delete the assessment. Please try again.', variant: 'destructive' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const getSkinTypeIcon = (skinType: string) => {
     switch (skinType) {
       case 'oily': return <Droplets className="h-4 w-4" />;
