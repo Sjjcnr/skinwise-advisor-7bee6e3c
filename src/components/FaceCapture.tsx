@@ -372,11 +372,16 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
             {cameraActive && !capturedImage && (
               <>
-                <Button onClick={capture} disabled={checking} className="flex-1 gap-2">
+                <Button onClick={capture} disabled={checking || cameraInitializing} className="flex-1 gap-2">
                   {checking ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Checking…
+                    </>
+                  ) : cameraInitializing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Starting…
                     </>
                   ) : (
                     <>
