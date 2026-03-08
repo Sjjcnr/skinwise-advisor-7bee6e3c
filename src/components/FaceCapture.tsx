@@ -39,7 +39,14 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     ry: h * 0.42,
   }), []);
 
-  const startCamera = useCallback(async () => {
+  const refreshVideoDevices = useCallback(async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter((device) => device.kind === 'videoinput');
+    setVideoDevices(videoInputs);
+    return videoInputs;
+  }, []);
+
+  const startCamera = useCallback(async (deviceId?: string) => {
     setError(null);
     setResult(null);
     setCapturedImage(null);
@@ -51,11 +58,21 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     try {
       streamRef.current?.getTracks().forEach((track) => track.stop());
 
+      const constraints: MediaStreamConstraints = deviceId
+        ? {
+            video: {
+              deviceId: { exact: deviceId },
+              width: { ideal: 1280 },
+              height: { ideal: 960 },
+            },
+          }
+        : {
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+          };
+
       let stream: MediaStream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
-        });
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch {
         // Fallback for devices/browsers that can't satisfy preferred constraints
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -63,6 +80,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       streamRef.current = stream;
       setCameraStream(stream);
+
+      const cameras = await refreshVideoDevices();
+      const currentDeviceId = stream.getVideoTracks()[0]?.getSettings().deviceId;
+      if (currentDeviceId) {
+        const foundIndex = cameras.findIndex((cam) => cam.deviceId === currentDeviceId);
+        if (foundIndex >= 0) setActiveDeviceIndex(foundIndex);
+      }
     } catch (err) {
       const message = err instanceof Error ? `${err.name}: ${err.message}` : 'Unknown camera error';
       setCameraActive(false);
@@ -70,7 +94,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       setCameraInitializing(false);
       setError(`Could not access camera. ${message}`);
     }
-  }, []);
+  }, [refreshVideoDevices]);
 
   // Attach stream to video element when both are ready
   useEffect(() => {
