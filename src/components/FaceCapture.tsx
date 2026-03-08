@@ -21,6 +21,8 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraInitializing, setCameraInitializing] = useState(false);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeDeviceIndex, setActiveDeviceIndex] = useState(0);
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<FaceCheckResult | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -37,7 +39,14 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     ry: h * 0.42,
   }), []);
 
-  const startCamera = useCallback(async () => {
+  const refreshVideoDevices = useCallback(async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter((device) => device.kind === 'videoinput');
+    setVideoDevices(videoInputs);
+    return videoInputs;
+  }, []);
+
+  const startCamera = useCallback(async (deviceId?: string) => {
     setError(null);
     setResult(null);
     setCapturedImage(null);
@@ -49,11 +58,21 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     try {
       streamRef.current?.getTracks().forEach((track) => track.stop());
 
+      const constraints: MediaStreamConstraints = deviceId
+        ? {
+            video: {
+              deviceId: { exact: deviceId },
+              width: { ideal: 1280 },
+              height: { ideal: 960 },
+            },
+          }
+        : {
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+          };
+
       let stream: MediaStream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
-        });
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch {
         // Fallback for devices/browsers that can't satisfy preferred constraints
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -61,6 +80,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       streamRef.current = stream;
       setCameraStream(stream);
+
+      const cameras = await refreshVideoDevices();
+      const currentDeviceId = stream.getVideoTracks()[0]?.getSettings().deviceId;
+      if (currentDeviceId) {
+        const foundIndex = cameras.findIndex((cam) => cam.deviceId === currentDeviceId);
+        if (foundIndex >= 0) setActiveDeviceIndex(foundIndex);
+      }
     } catch (err) {
       const message = err instanceof Error ? `${err.name}: ${err.message}` : 'Unknown camera error';
       setCameraActive(false);
@@ -68,7 +94,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
       setCameraInitializing(false);
       setError(`Could not access camera. ${message}`);
     }
-  }, []);
+  }, [refreshVideoDevices]);
 
   // Attach stream to video element when both are ready
   useEffect(() => {
@@ -116,7 +142,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
 
       if (!cancelled && video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
         setCameraInitializing(false);
-        setError('Camera opened but no live feed was received. Close other camera apps, then try again.');
+        setError('Camera opened but no live feed was received. Try switching camera or close other camera apps, then retry.');
       }
     }, 3000);
 
@@ -136,6 +162,13 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
     if (videoRef.current) videoRef.current.srcObject = null;
     setCameraActive(false);
   }, []);
+
+  const switchCamera = useCallback(() => {
+    if (videoDevices.length < 2) return;
+    const nextIndex = (activeDeviceIndex + 1) % videoDevices.length;
+    setActiveDeviceIndex(nextIndex);
+    void startCamera(videoDevices[nextIndex].deviceId);
+  }, [activeDeviceIndex, startCamera, videoDevices]);
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
@@ -355,7 +388,7 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
           <div className="flex flex-wrap gap-2">
             {!cameraActive && !capturedImage && (
               <>
-                <Button onClick={startCamera} className="flex-1 gap-2">
+                <Button onClick={() => void startCamera()} className="flex-1 gap-2">
                   <Camera className="w-4 h-4" />
                   Capture
                 </Button>
@@ -390,6 +423,12 @@ export default function FaceCapture({ onValidCapture, onCancel }: FaceCapturePro
                     </>
                   )}
                 </Button>
+                {videoDevices.length > 1 && (
+                  <Button variant="outline" onClick={switchCamera} disabled={cameraInitializing} className="gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    Switch camera
+                  </Button>
+                )}
                 <Button variant="outline" onClick={stopCamera} className="gap-2">
                   <X className="w-4 h-4" />
                   Cancel
