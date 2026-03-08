@@ -119,22 +119,26 @@ export default function History() {
     }
   }, []);
 
+  // Use a ref so the undo callback always sees the latest pending items
+  const pendingDeleteRef = useRef<{ items: AssessmentWithRecommendation[] } | null>(null);
+
   const undoPendingDelete = useCallback(() => {
-    if (!pendingDelete) return;
+    const pending = pendingDeleteRef.current;
+    if (!pending) return;
     if (pendingDeleteTimer.current) clearTimeout(pendingDeleteTimer.current);
 
-    // Restore removed items back into the list
     setAssessments((prev) => {
       const existingIds = new Set(prev.map((a) => a.id));
-      const restored = pendingDelete.items.filter((a) => !existingIds.has(a.id));
+      const restored = pending.items.filter((a) => !existingIds.has(a.id));
       return [...restored, ...prev].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
 
+    pendingDeleteRef.current = null;
     setPendingDelete(null);
     toast({ title: 'Restored', description: 'Your assessments have been restored.' });
-  }, [pendingDelete, toast]);
+  }, [toast]);
 
   // Cleanup timer on unmount
   useEffect(() => () => {
@@ -142,10 +146,10 @@ export default function History() {
   }, []);
 
   const deleteAssessment = (assessmentId: string) => {
-    // Cancel any previous pending delete first
+    // Commit any previous pending delete
     if (pendingDeleteTimer.current) {
       clearTimeout(pendingDeleteTimer.current);
-      if (pendingDelete) void commitDelete(pendingDelete.items);
+      if (pendingDeleteRef.current) void commitDelete(pendingDeleteRef.current.items);
     }
 
     const deleted = assessments.find((a) => a.id === assessmentId);
@@ -154,8 +158,9 @@ export default function History() {
     setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
     if (expandedId === assessmentId) setExpandedId(null);
 
-    const pending = { items: [deleted], type: 'single' as const };
-    setPendingDelete(pending);
+    const pending = { items: [deleted] };
+    pendingDeleteRef.current = pending;
+    setPendingDelete({ items: [deleted], type: 'single' });
 
     toast({
       title: 'Assessment deleted',
@@ -165,10 +170,12 @@ export default function History() {
           Undo
         </ToastAction>
       ),
+      duration: 8000,
     });
 
     pendingDeleteTimer.current = setTimeout(() => {
       void commitDelete(pending.items);
+      pendingDeleteRef.current = null;
       setPendingDelete(null);
     }, 8000);
   };
@@ -176,15 +183,16 @@ export default function History() {
   const deleteAllAssessments = () => {
     if (pendingDeleteTimer.current) {
       clearTimeout(pendingDeleteTimer.current);
-      if (pendingDelete) void commitDelete(pendingDelete.items);
+      if (pendingDeleteRef.current) void commitDelete(pendingDeleteRef.current.items);
     }
 
     const allItems = [...assessments];
     setAssessments([]);
     setExpandedId(null);
 
-    const pending = { items: allItems, type: 'all' as const };
-    setPendingDelete(pending);
+    const pending = { items: allItems };
+    pendingDeleteRef.current = pending;
+    setPendingDelete({ items: allItems, type: 'all' });
 
     toast({
       title: 'All assessments deleted',
@@ -194,10 +202,12 @@ export default function History() {
           Undo
         </ToastAction>
       ),
+      duration: 8000,
     });
 
     pendingDeleteTimer.current = setTimeout(() => {
       void commitDelete(pending.items);
+      pendingDeleteRef.current = null;
       setPendingDelete(null);
     }, 8000);
   };
