@@ -190,9 +190,9 @@ export default function History() {
       title: 'All assessments deleted',
       description: `${allItems.length} assessment${allItems.length !== 1 ? 's' : ''} will be permanently removed in 8 seconds.`,
       action: (
-        <Button variant="outline" size="sm" onClick={undoPendingDelete}>
+        <ToastAction altText="Undo delete all" onClick={undoPendingDelete}>
           Undo
-        </Button>
+        </ToastAction>
       ),
     });
 
