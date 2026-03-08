@@ -47,6 +47,18 @@ interface AssessmentWithRecommendation {
   };
 }
 
+const UNDO_DELAY = 8;
+
+function Countdown({ seconds }: { seconds: number }) {
+  const [remaining, setRemaining] = useState(seconds);
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const id = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000);
+    return () => clearInterval(id);
+  }, [remaining]);
+  return <>{remaining}s</>;
+}
+
 export default function History() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
