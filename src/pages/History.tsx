@@ -176,13 +176,13 @@ export default function History() {
 
     toast({
       title: 'Assessment deleted',
-      description: 'This will be permanently removed in 8 seconds.',
+      description: <span>Permanently removed in <Countdown seconds={UNDO_DELAY} /></span>,
       action: (
         <ToastAction altText="Undo delete" onClick={undoPendingDelete}>
           Undo
         </ToastAction>
       ),
-      duration: 8000,
+      duration: UNDO_DELAY * 1000,
     });
 
     pendingDeleteTimer.current = setTimeout(() => {
