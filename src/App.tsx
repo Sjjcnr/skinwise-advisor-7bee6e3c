@@ -39,7 +39,6 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/face-capture" element={<FaceCapturePage />} />
-              <Route path="/progress" element={<Progress />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

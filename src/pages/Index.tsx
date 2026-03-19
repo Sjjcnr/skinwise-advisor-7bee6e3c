@@ -12,8 +12,7 @@ import {
   Leaf,
   Shield,
   Zap,
-  User,
-  TrendingUp
+  User
 } from 'lucide-react';
 
 export default function Index() {
