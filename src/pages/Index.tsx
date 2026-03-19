@@ -12,7 +12,8 @@ import {
   Leaf,
   Shield,
   Zap,
-  User
+  User,
+  TrendingUp
 } from 'lucide-react';
 
 export default function Index() {
@@ -55,6 +56,15 @@ export default function Index() {
             <ThemeToggle />
             {user ? (
               <div className="flex items-center gap-1 sm:gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/progress')}
+                  className="flex items-center gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Progress</span>
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"

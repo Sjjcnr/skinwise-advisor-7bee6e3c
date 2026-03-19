@@ -189,6 +189,30 @@ export type Database = {
         }
         Relationships: []
       }
+      skin_progress_photos: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          photo_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
