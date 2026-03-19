@@ -59,6 +59,15 @@ export default function Index() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => navigate('/progress')}
+                  className="flex items-center gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden sm:inline">Progress</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => navigate('/history')}
                   className="flex items-center gap-2"
                 >
