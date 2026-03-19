@@ -13,7 +13,6 @@ import History from "./pages/History";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
 import FaceCapturePage from "./pages/FaceCapturePage";
-import Progress from "./pages/Progress";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
