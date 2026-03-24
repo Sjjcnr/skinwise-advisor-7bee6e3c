@@ -183,7 +183,7 @@ Return ONLY valid JSON in this exact format:
         result.products.map(async (product: any, index: number) => {
           try {
             // Search for product on shopping sites
-            const searchQuery = `${product.brand} ${product.name} buy skincare`;
+            const searchQuery = `${product.brand} ${product.name} buy India`;
             console.log(`Searching for: ${searchQuery}`);
             
             const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
@@ -194,7 +194,7 @@ Return ONLY valid JSON in this exact format:
               },
               body: JSON.stringify({ 
                 query: searchQuery, 
-                limit: 3 
+                limit: 5 
               }),
             });
             
@@ -202,8 +202,8 @@ Return ONLY valid JSON in this exact format:
               const searchData = await searchResponse.json();
               console.log(`Search results for ${product.name}:`, searchData.data?.length || 0);
               
-              // Find a good shopping URL (prefer Amazon, Ulta, Sephora, etc.)
-              const shoppingDomains = ['amazon.com', 'ulta.com', 'sephora.com', 'target.com', 'walmart.com', 'skinstore.com', 'dermstore.com'];
+              // Find a good shopping URL (prefer Indian e-commerce sites)
+              const shoppingDomains = ['amazon.in', 'nykaa.com', 'flipkart.com', 'purplle.com', 'myntra.com', 'tatacliq.com', 'netmeds.com', '1mg.com'];
               
               let productUrl = null;
               for (const result of searchData.data || []) {
