@@ -83,10 +83,11 @@ ${allergiesToAvoid}
 
 REQUIREMENTS:
 1. Recommend REAL products from brands available in India like Minimalist, Dot & Key, Plum, Mamaearth, The Derma Co, Cetaphil, Biotique, Lakme, Re'equil, Deconstruct, Fixderma, Episoft, Cipla, etc.
-2. All prices must be in Indian Rupees (₹) and match the budget range specified
-3. Include a cleanser, moisturizer, and treatments for their specific concerns
-4. Each product must be purchasable on Indian e-commerce platforms (Amazon India, Nykaa, Flipkart, etc.)
-${facePhoto ? '5. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
+2. CRITICAL BUDGET RULE: Every single product MUST cost ${budgetDescription}. ${budgetInfo.max ? `No product should exceed ₹${budgetInfo.max}.` : ''} ${budgetInfo.min > 0 ? `No product should be below ₹${budgetInfo.min}.` : ''} Double-check each price before including it. If a product is outside the budget range, replace it with a cheaper/appropriate alternative.
+3. The "priceRange" field must show the approximate MRP on Indian e-commerce sites (Amazon India, Nykaa, Flipkart). Be as accurate as possible with real current prices.
+4. Include a cleanser, moisturizer, and treatments for their specific concerns
+5. Each product must be purchasable on Indian e-commerce platforms (Amazon India, Nykaa, Flipkart, etc.)
+${facePhoto ? '6. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
 
 Return ONLY valid JSON in this exact format:
 {
