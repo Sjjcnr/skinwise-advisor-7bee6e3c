@@ -56,13 +56,14 @@ serve(async (req) => {
       : '';
 
     // Map budget to price expectations
-    const budgetMap: Record<string, string> = {
-      'budget': 'affordable products under ₹500 INR',
-      'mid': 'mid-range products between ₹500-₹1500 INR',
-      'premium': 'premium products between ₹1500-₹3000 INR',
-      'luxury': 'high-end luxury products over ₹3000 INR'
+    const budgetMap: Record<string, { description: string; max: number | null; min: number }> = {
+      'budget': { description: 'affordable products strictly under ₹500 INR each', max: 500, min: 0 },
+      'mid': { description: 'mid-range products between ₹500-₹1500 INR each', max: 1500, min: 500 },
+      'premium': { description: 'premium products between ₹1500-₹3000 INR each', max: 3000, min: 1500 },
+      'luxury': { description: 'high-end luxury products over ₹3000 INR each', max: null, min: 3000 }
     };
-    const budgetDescription = budgetMap[assessment.budget_range] || 'products across various price points';
+    const budgetInfo = budgetMap[assessment.budget_range] || { description: 'products across various price points', max: null, min: 0 };
+    const budgetDescription = budgetInfo.description;
 
     const facePhotoInstruction = facePhoto
       ? `\n\nIMPORTANT: A face photo has been provided for visual skin analysis. Carefully examine the photo to identify visible skin conditions such as acne, dryness, redness, dark spots, wrinkles, oiliness, or texture issues. Factor your visual observations into the product recommendations alongside the stated profile data. Mention any visible observations in the summary.`
