@@ -216,9 +216,9 @@ export default function Results() {
         )}
 
         <Card className="bg-muted/50 border-dashed">
-          <CardContent className="p-4 text-center text-sm text-muted-foreground">
-            <AlertTriangle className="w-4 h-4 inline mr-2" />
-            These are AI-generated suggestions. Please consult a dermatologist for personalized medical advice.
+          <CardContent className="p-4 text-center text-sm text-muted-foreground space-y-1">
+            <p><AlertTriangle className="w-4 h-4 inline mr-2" />These are AI-generated suggestions. Please consult a dermatologist for personalized medical advice.</p>
+            <p className="text-xs">Prices shown are approximate and may differ from actual prices on e-commerce platforms.</p>
           </CardContent>
         </Card>
 

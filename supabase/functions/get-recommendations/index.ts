@@ -56,13 +56,14 @@ serve(async (req) => {
       : '';
 
     // Map budget to price expectations
-    const budgetMap: Record<string, string> = {
-      'budget': 'affordable products under ₹500 INR',
-      'mid': 'mid-range products between ₹500-₹1500 INR',
-      'premium': 'premium products between ₹1500-₹3000 INR',
-      'luxury': 'high-end luxury products over ₹3000 INR'
+    const budgetMap: Record<string, { description: string; max: number | null; min: number }> = {
+      'budget': { description: 'affordable products strictly under ₹500 INR each', max: 500, min: 0 },
+      'mid': { description: 'mid-range products between ₹500-₹1500 INR each', max: 1500, min: 500 },
+      'premium': { description: 'premium products between ₹1500-₹3000 INR each', max: 3000, min: 1500 },
+      'luxury': { description: 'high-end luxury products over ₹3000 INR each', max: null, min: 3000 }
     };
-    const budgetDescription = budgetMap[assessment.budget_range] || 'products across various price points';
+    const budgetInfo = budgetMap[assessment.budget_range] || { description: 'products across various price points', max: null, min: 0 };
+    const budgetDescription = budgetInfo.description;
 
     const facePhotoInstruction = facePhoto
       ? `\n\nIMPORTANT: A face photo has been provided for visual skin analysis. Carefully examine the photo to identify visible skin conditions such as acne, dryness, redness, dark spots, wrinkles, oiliness, or texture issues. Factor your visual observations into the product recommendations alongside the stated profile data. Mention any visible observations in the summary.`
@@ -82,10 +83,11 @@ ${allergiesToAvoid}
 
 REQUIREMENTS:
 1. Recommend REAL products from brands available in India like Minimalist, Dot & Key, Plum, Mamaearth, The Derma Co, Cetaphil, Biotique, Lakme, Re'equil, Deconstruct, Fixderma, Episoft, Cipla, etc.
-2. All prices must be in Indian Rupees (₹) and match the budget range specified
-3. Include a cleanser, moisturizer, and treatments for their specific concerns
-4. Each product must be purchasable on Indian e-commerce platforms (Amazon India, Nykaa, Flipkart, etc.)
-${facePhoto ? '5. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
+2. CRITICAL BUDGET RULE: Every single product MUST cost ${budgetDescription}. ${budgetInfo.max ? `No product should exceed ₹${budgetInfo.max}.` : ''} ${budgetInfo.min > 0 ? `No product should be below ₹${budgetInfo.min}.` : ''} Double-check each price before including it. If a product is outside the budget range, replace it with a cheaper/appropriate alternative.
+3. The "priceRange" field must show the approximate MRP on Indian e-commerce sites (Amazon India, Nykaa, Flipkart). Be as accurate as possible with real current prices.
+4. Include a cleanser, moisturizer, and treatments for their specific concerns
+5. Each product must be purchasable on Indian e-commerce platforms (Amazon India, Nykaa, Flipkart, etc.)
+${facePhoto ? '6. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
 
 Return ONLY valid JSON in this exact format:
 {
