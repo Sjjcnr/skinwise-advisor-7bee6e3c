@@ -68,7 +68,7 @@ serve(async (req) => {
       ? `\n\nIMPORTANT: A face photo has been provided for visual skin analysis. Carefully examine the photo to identify visible skin conditions such as acne, dryness, redness, dark spots, wrinkles, oiliness, or texture issues. Factor your visual observations into the product recommendations alongside the stated profile data. Mention any visible observations in the summary.`
       : '';
 
-    const prompt = `You are a skincare expert. Analyze this user's skin profile and recommend 5 specific, REAL skincare products they can purchase.${facePhotoInstruction}
+    const prompt = `You are a skincare expert specializing in Indian skincare products. Analyze this user's skin profile and recommend 5 specific, REAL skincare products available in India.${facePhotoInstruction}
 
 USER PROFILE:
 - Age Range: ${assessment.age_range}
@@ -81,10 +81,10 @@ USER PROFILE:
 ${allergiesToAvoid}
 
 REQUIREMENTS:
-1. Recommend REAL products from well-known brands like CeraVe, La Roche-Posay, The Ordinary, Neutrogena, Paula's Choice, Olay, etc.
-2. Products must match the budget range specified
+1. Recommend REAL products from brands available in India like Minimalist, Dot & Key, Plum, Mamaearth, The Derma Co, Cetaphil, Biotique, Lakme, Re'equil, Deconstruct, Fixderma, Episoft, Cipla, etc.
+2. All prices must be in Indian Rupees (₹) and match the budget range specified
 3. Include a cleanser, moisturizer, and treatments for their specific concerns
-4. Each product must be actually purchasable online
+4. Each product must be purchasable on Indian e-commerce platforms (Amazon India, Nykaa, Flipkart, etc.)
 ${facePhoto ? '5. Reference specific visible skin observations from the photo in your summary and product justifications' : ''}
 
 Return ONLY valid JSON in this exact format:
@@ -96,7 +96,7 @@ Return ONLY valid JSON in this exact format:
       "brand": "Brand Name",
       "description": "What this product does",
       "keyIngredients": ["ingredient1", "ingredient2", "ingredient3"],
-      "priceRange": "$" or "$$" or "$$$",
+      "priceRange": "₹XXX" (actual price in INR),
       "whySuitable": "Why this specific product addresses their skin type and concerns",
       "usageInstructions": "When and how to use (e.g., 'Apply morning and night after cleansing')",
       "category": "cleanser" or "moisturizer" or "serum" or "sunscreen" or "treatment"
