@@ -70,10 +70,10 @@ export const CLIMATES = [
 ] as const;
 
 export const BUDGET_RANGES = [
-  { value: 'budget', label: 'Budget-Friendly ($)' },
-  { value: 'mid', label: 'Mid-Range ($$)' },
-  { value: 'premium', label: 'Premium ($$$)' },
-  { value: 'luxury', label: 'Luxury ($$$$)' },
+  { value: 'budget', label: 'Budget-Friendly (Under ₹500)' },
+  { value: 'mid', label: 'Mid-Range (₹500–₹1500)' },
+  { value: 'premium', label: 'Premium (₹1500–₹3000)' },
+  { value: 'luxury', label: 'Luxury (₹3000+)' },
 ] as const;
 
 export const COMMON_ALLERGIES = [

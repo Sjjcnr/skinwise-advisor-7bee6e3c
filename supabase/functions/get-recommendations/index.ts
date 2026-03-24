@@ -235,7 +235,7 @@ Return ONLY valid JSON in this exact format:
       // Generate generic search URLs as fallback
       result.products = result.products.map((product: any) => ({
         ...product,
-        productUrl: `https://www.amazon.com/s?k=${encodeURIComponent(product.brand + ' ' + product.name)}`
+        productUrl: `https://www.amazon.in/s?k=${encodeURIComponent(product.brand + ' ' + product.name)}`
       }));
     }
 
