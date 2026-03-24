@@ -170,7 +170,7 @@ export default function Results() {
                       <CardTitle className="text-lg">{product.name}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{product.priceRange}</Badge>
+                      <Badge variant="secondary">Approx. {product.priceRange}</Badge>
                       {user && <FavoriteButton product={product} userId={user.id} />}
                     </div>
                   </div>
