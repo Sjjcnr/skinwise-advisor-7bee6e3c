@@ -57,10 +57,10 @@ serve(async (req) => {
 
     // Map budget to price expectations
     const budgetMap: Record<string, string> = {
-      'budget': 'affordable drugstore products under $20',
-      'mid-range': 'mid-range products between $20-50',
-      'premium': 'premium/luxury products $50-100',
-      'luxury': 'high-end luxury products over $100'
+      'budget': 'affordable products under ₹500 INR',
+      'mid': 'mid-range products between ₹500-₹1500 INR',
+      'premium': 'premium products between ₹1500-₹3000 INR',
+      'luxury': 'high-end luxury products over ₹3000 INR'
     };
     const budgetDescription = budgetMap[assessment.budget_range] || 'products across various price points';
 
