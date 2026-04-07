@@ -42,11 +42,10 @@ export default function Results() {
   const fetchRecommendations = async () => {
     if (!assessmentId) return;
     
-    setIsLoading(true);
     setError(null);
 
     try {
-      // Check if recommendations already exist
+      // Check if recommendations already exist (fast DB lookup, no loading screen)
       const { data: existing } = await supabase
         .from('recommendations')
         .select('*')
@@ -57,9 +56,13 @@ export default function Results() {
         setRecommendationId(existing.id);
         setProducts(existing.products as unknown as Product[]);
         setAiSummary(existing.ai_summary || '');
-        setIsLoading(false);
+        setHasFetched(true);
         return;
       }
+
+      // Only show generating screen when actually calling the AI
+      setIsLoading(true);
+      setIsGenerating(true);
 
       // Fetch assessment data
       const { data: assessment, error: assessmentError } = await supabase
@@ -70,7 +73,6 @@ export default function Results() {
 
       if (assessmentError) throw assessmentError;
 
-      // Call edge function for AI recommendations, include face photo if available
       const { data, error: fnError } = await supabase.functions.invoke('get-recommendations', {
         body: { assessment, facePhoto },
       });
@@ -80,7 +82,6 @@ export default function Results() {
       setProducts(data.products || []);
       setAiSummary(data.summary || '');
 
-      // Save recommendations
       const { data: savedRec } = await supabase.from('recommendations').insert({
         assessment_id: assessmentId,
         user_id: user!.id,
@@ -98,6 +99,8 @@ export default function Results() {
       toast({ title: 'Error', description: 'Failed to load recommendations', variant: 'destructive' });
     } finally {
       setIsLoading(false);
+      setIsGenerating(false);
+      setHasFetched(true);
     }
   };
 
