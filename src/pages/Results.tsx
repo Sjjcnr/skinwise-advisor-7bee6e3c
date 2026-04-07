@@ -34,8 +34,10 @@ export default function Results() {
       return;
     }
 
-    fetchRecommendations();
-  }, [assessmentId, user]);
+    if (!hasFetched) {
+      fetchRecommendations();
+    }
+  }, [assessmentId, user, hasFetched]);
 
   const fetchRecommendations = async () => {
     if (!assessmentId) return;
