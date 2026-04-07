@@ -22,9 +22,11 @@ export default function Results() {
   
   const [products, setProducts] = useState<Product[]>([]);
   const [aiSummary, setAiSummary] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recommendationId, setRecommendationId] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
     if (!user) {
